@@ -6,3 +6,7 @@
 ./include/
 __pycache__
 ./pyvenv.cfg/
+
+
+# Logs
+water_plant.log

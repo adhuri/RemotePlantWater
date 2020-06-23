@@ -1,12 +1,27 @@
 from abc import ABC, abstractmethod
 import configparser
+import logging
+logger = logging.getLogger("water_plants")
+import mock
+
+try:
+    import RPi.GPIO as GPIO
+    GPIO.setmode(GPIO.BCM)
+except (RuntimeError, ModuleNotFoundError):
+    logger.error("Can't import GPIO, Non Raspberry PI device. Mocking for development")
+    GPIO = mock.Mock
+    GPIO.LOW, GPIO.HIGH = None, None
+    GPIO.output = mock.Mock
+    GPIO.cleanup = mock.Mock
 
 class Device(ABC):
     
-    def __init__(self, name:str):
+    def __init__(self, name:str, bcm_pin_number:int):
         self.name = name
+        self.bcm_pin_number = bcm_pin_number
         self.config = configparser.ConfigParser()
         self.config.read('config.ini')
+        # self.initGPIO()
         super().__init__()
 
     @abstractmethod
@@ -27,6 +42,25 @@ class Device(ABC):
                 raise KeyError(f"key: {config_name} not found under {self.name} in config.ini")
         else:
             raise Exception(f"message: Device config not found : {self.name}")
+
+    # def initGPIO(self):
+    #     logging.debug(f"Init GPIO BCM pin {self.bcm_pin_number}")
+    #     GPIO.setup(self.bcm_pin_number, GPIO.OUT)
+        
+
+    def turnONGPIO(self):
+        logger.debug(f"ON GPIO BCM pin {self.bcm_pin_number}")
+        GPIO.output(2, GPIO.LOW)
+
+    def turnOFFGPIO(self):
+        logger.debug(f"OFF GPIO BCM pin {self.bcm_pin_number}")
+        GPIO.output(2, GPIO.HIGH)
+    
+    def cleanUpGPIO(self):
+        logger.debug(f"Cleanup GPIO")
+        GPIO.cleanup()
+
+
 
 
 
