@@ -1,1 +1,3 @@
+fake-rpigpio==0.1.1
+mock==4.0.2
 RPi.GPIO==0.7.0

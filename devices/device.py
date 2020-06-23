@@ -6,13 +6,13 @@ import mock
 
 try:
     import RPi.GPIO as GPIO
-    GPIO.setmode(GPIO.BCM)
 except (RuntimeError, ModuleNotFoundError):
     logger.error("Can't import GPIO, Non Raspberry PI device. Mocking for development")
     GPIO = mock.Mock
     GPIO.LOW, GPIO.HIGH = None, None
     GPIO.output = mock.Mock
     GPIO.cleanup = mock.Mock
+    GPIO.setup = mock.Mock
 
 class Device(ABC):
     
@@ -21,7 +21,7 @@ class Device(ABC):
         self.bcm_pin_number = bcm_pin_number
         self.config = configparser.ConfigParser()
         self.config.read('config.ini')
-        # self.initGPIO()
+        self.initGPIO()
         super().__init__()
 
     @abstractmethod
@@ -43,9 +43,10 @@ class Device(ABC):
         else:
             raise Exception(f"message: Device config not found : {self.name}")
 
-    # def initGPIO(self):
-    #     logging.debug(f"Init GPIO BCM pin {self.bcm_pin_number}")
-    #     GPIO.setup(self.bcm_pin_number, GPIO.OUT)
+    def initGPIO(self):
+        logging.debug(f"Init GPIO BCM pin {self.bcm_pin_number}")
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setup(self.bcm_pin_number, GPIO.OUT)
         
 
     def turnONGPIO(self):
