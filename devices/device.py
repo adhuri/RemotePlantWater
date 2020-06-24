@@ -1,18 +1,22 @@
-from abc import ABC, abstractmethod
 import configparser
 import logging
-logger = logging.getLogger("water_plants")
 import mock
+from abc import ABC, abstractmethod
+
+
+logger = logging.getLogger("water_plants")
+
 
 try:
     import RPi.GPIO as GPIO
 except (RuntimeError, ModuleNotFoundError):
     logger.error("Can't import GPIO, Non Raspberry PI device. Mocking for development")
     GPIO = mock.Mock
-    GPIO.LOW, GPIO.HIGH = None, None
+    GPIO.LOW, GPIO.HIGH, GPIO.BCM, GPIO.OUT = None, None, None, None
     GPIO.output = mock.Mock
     GPIO.cleanup = mock.Mock
     GPIO.setup = mock.Mock
+    GPIO.setmode = mock.Mock
 
 class Device(ABC):
     
@@ -60,7 +64,6 @@ class Device(ABC):
     def cleanUpGPIO(self):
         logger.debug(f"Cleanup GPIO")
         GPIO.cleanup()
-
 
 
 
