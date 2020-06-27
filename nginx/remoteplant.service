@@ -10,7 +10,7 @@ After=network.target
 User=pi
 Group=www-data
 WorkingDirectory=/home/pi/RemotePlantWater
-ExecStart=/home/pi/.local/bin/uwsgi --ini nginx/myproject.ini
+ExecStart=/home/pi/.local/bin/uwsgi --ini nginx/remoteplant.ini
 
 [Install]
 WantedBy=multi-user.target
