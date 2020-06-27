@@ -2,7 +2,9 @@ import atexit
 from devices.motor import Motor
 from logger import init_logger
 from apscheduler.schedulers.background import BackgroundScheduler
-from flask import Flask, render_template
+from flask import Flask, render_template, request
+from multiprocessing import Process
+
 
 
 init_logger()
@@ -23,11 +25,20 @@ def home():
         headers = {'Content-Type': 'text/html'}
         return render_template('index.html', content=content, headers= headers)
 
-@app.route("/water")
+@app.route("/water", methods=['GET'])
 def water_now():
-    m.start()
-    m.stop()
-    return "Success"
+    def plant_water_once(duration):
+        m.start(duration = duration)
+        m.stop()
+
+    duration = request.args.get('duration', default = m.default_pump_duration(), type = int)
+    heavy_process = Process(  # Create a daemonic process 
+        target=plant_water_once,
+        args=(duration,),
+        daemon=True )
+    heavy_process.start()
+    return f"Processing the request to water for duration : {duration} seconds"
+
 
 atexit.register(lambda: sched.shutdown())
 atexit.register(m.cleanUpGPIO)

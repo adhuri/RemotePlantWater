@@ -8,11 +8,14 @@ logger = logging.getLogger("water_plants")
 class Motor(Device):
 
     
-    def start(self):
-        pump_duration = int(self.readConfig("PumpDuration"))
+    def start(self, duration = None):
+        if duration:
+            pump_duration = duration
+        else:
+            pump_duration = self.default_pump_duration()
         pump = int(self.readConfig("DefaultPump"))
         logger.info(f"Starting Motor: \"{self.name}\" with {pump} pumps")   
-        logger.debug(f"Running for {pump_duration} seconds")
+        logger.info(f"Running for {pump_duration} seconds")
         self.turnONGPIO()
         time.sleep(pump_duration)
 
@@ -43,3 +46,6 @@ class Motor(Device):
 
     def duration_between_cycles(self) -> int:
         return int(self.readConfig("DurationBetweenCycles"))
+
+    def default_pump_duration(self) -> int:
+        return int(self.readConfig("PumpDuration"))
