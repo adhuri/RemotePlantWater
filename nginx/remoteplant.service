@@ -1,0 +1,16 @@
+# Copy this to /etc/systemd/system/
+#    sudo systemctl start myproject
+#    sudo systemctl enable myproject
+
+[Unit]
+Description=uWSGI instance to serve remoteplant
+After=network.target
+
+[Service]
+User=pi
+Group=www-data
+WorkingDirectory=/home/pi/RemotePlantWater
+ExecStart=/home/pi/.local/bin/uwsgi --ini nginx/myproject.ini
+
+[Install]
+WantedBy=multi-user.target
