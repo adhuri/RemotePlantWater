@@ -25,7 +25,9 @@ def home():
 
 @app.route("/water")
 def water_now():
-    m.run(on_demand_cycles = 1)
+    m.start()
+    m.stop()
+    return "Success"
 
 atexit.register(lambda: sched.shutdown())
 atexit.register(m.cleanUpGPIO)
