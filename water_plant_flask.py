@@ -28,6 +28,6 @@ atexit.register(lambda: sched.shutdown())
 atexit.register(m.cleanUpGPIO)
 
 if __name__ == "__main__":
-    app.run()
+    app.run(host="0.0.0.0")
 
 
