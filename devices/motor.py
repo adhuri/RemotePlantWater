@@ -21,8 +21,12 @@ class Motor(Device):
         logger.info(f"Stopping Motor: \"{self.name}\"")   
         self.turnOFFGPIO()
 
-    def run(self):       
-        cycles = self.no_of_cycles()
+    def run(self, on_demand_cycles = None):
+        if on_demand_cycles:       
+            cycles = on_demand_cycles 
+            logger.info("On demand water requested.")
+        else:
+            cycles = self.no_of_cycles()
         logger.info(f"Running the pump for cycles : {cycles}")
         for cycle in range(1,cycles+1):
             logger.info(f"Cycle No: {cycle}")

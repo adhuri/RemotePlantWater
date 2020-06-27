@@ -23,6 +23,9 @@ def home():
         headers = {'Content-Type': 'text/html'}
         return render_template('index.html', content=content, headers= headers)
 
+@app.route("/water")
+def water_now():
+    m.run(on_demand_cycles = 1)
 
 atexit.register(lambda: sched.shutdown())
 atexit.register(m.cleanUpGPIO)
