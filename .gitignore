@@ -1,11 +1,12 @@
 # Venv files
 
-./lib64/
-./lib/
-./share/
-./include/
+bin/
+lib64
+lib/
+share/
+include/
 __pycache__
-./pyvenv.cfg/
+pyvenv.cfg
 
 
 # Logs
