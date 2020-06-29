@@ -2,9 +2,8 @@ import configparser
 import logging
 import mock
 from abc import ABC, abstractmethod
-from utils.db import DB
 from datetime import datetime
-from devices.stats import Stats
+from utils.db import TimestampDB
 
 
 logger = logging.getLogger("water_plants")
@@ -29,7 +28,7 @@ class Device(ABC):
         self.config = configparser.ConfigParser()
         self.config.read('config.ini')
         self.initGPIO()
-        self.stats = Stats(self.name)
+        self.db = TimestampDB(self.name)
         super().__init__()
 
     @abstractmethod

@@ -7,9 +7,10 @@ share/
 include/
 __pycache__
 pyvenv.cfg
+.vscode
 
 # Logs
 water_plant.log
 
 #DB
-utils/shelvedb
+utils/*.db

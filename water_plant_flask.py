@@ -47,7 +47,11 @@ def water_now():
 
 @app.route("/laststarted", methods=['GET'])
 def get_last_started_time():
-    return m.stats.get_last_started()
+    last_started_timestamp = m.db.get_last_timestamp()
+    if last_started_timestamp is None:
+        return "0000-00-00: 00:00:00"
+    else:
+        return last_started_timestamp
 
 atexit.register(lambda: sched.shutdown())
 atexit.register(m.cleanUpGPIO)
