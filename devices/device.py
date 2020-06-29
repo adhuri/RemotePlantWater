@@ -58,11 +58,11 @@ class Device(ABC):
 
     def turnONGPIO(self):
         logger.debug(f"ON GPIO BCM pin {self.bcm_pin_number}")
-        GPIO.output(2, GPIO.LOW)
+        GPIO.output(self.bcm_pin_number, GPIO.LOW)
 
     def turnOFFGPIO(self):
         logger.debug(f"OFF GPIO BCM pin {self.bcm_pin_number}")
-        GPIO.output(2, GPIO.HIGH)
+        GPIO.output(self.bcm_pin_number, GPIO.HIGH)
     
     def cleanUpGPIO(self):
         logger.debug(f"Cleanup GPIO")
