@@ -7,7 +7,7 @@ from multiprocessing import Process
 
 
 init_logger()
-m = Motor(name="Motor Indoor", bcm_pin_number=2)
+m = Motor(name="Motor Indoor", bcm_pin_number=17)
 
 # Scheduler
 sched = BackgroundScheduler()
