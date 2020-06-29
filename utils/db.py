@@ -24,7 +24,7 @@ class TimestampDB:
 
     def insert_start_timestamp(self) -> bool:
         def _get_current_date():
-                return datetime.now().strftime("%m-%d-%y %H:%M:%S") 
+                return datetime.now().strftime("%Y-%m-%d %H:%M:%S") 
         current_date_time = _get_current_date()
         try:
             conn = sqlite3.connect(self.filename)
@@ -71,7 +71,7 @@ class TimestampDB:
         try:
             conn = sqlite3.connect(self.filename)
             c = conn.cursor()
-            c.execute('SELECT * FROM device_timestamp WHERE device_name=? AND device_start <= date("now","localtime","start of day")', [self.device_name])
+            c.execute('SELECT * FROM device_timestamp WHERE device_name=? AND device_start >= date("now","start of day")', [self.device_name])
             today_count = len(c.fetchall())
             logger.info(f"[db] Retrieved count:{today_count} for {self.device_name}")
             conn.close()
