@@ -41,6 +41,13 @@ def water_now():
     heavy_process.start()
     return f"Processing the request to water for duration : {duration} seconds"
 
+# @app.route("/count/today", methods=['GET'])
+# def get_count_today():
+#     return m.stats.get_today_stats()
+
+@app.route("/laststarted", methods=['GET'])
+def get_last_started_time():
+    return m.stats.get_last_started()
 
 atexit.register(lambda: sched.shutdown())
 atexit.register(m.cleanUpGPIO)

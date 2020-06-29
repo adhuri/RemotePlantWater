@@ -2,6 +2,9 @@ import configparser
 import logging
 import mock
 from abc import ABC, abstractmethod
+from utils.db import DB
+from datetime import datetime
+from devices.stats import Stats
 
 
 logger = logging.getLogger("water_plants")
@@ -26,6 +29,7 @@ class Device(ABC):
         self.config = configparser.ConfigParser()
         self.config.read('config.ini')
         self.initGPIO()
+        self.stats = Stats(self.name)
         super().__init__()
 
     @abstractmethod
@@ -64,8 +68,3 @@ class Device(ABC):
     def cleanUpGPIO(self):
         logger.debug(f"Cleanup GPIO")
         GPIO.cleanup()
-
-
-
-
-

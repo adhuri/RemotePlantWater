@@ -18,6 +18,7 @@ class Motor(Device):
         logger.info(f"Running for {pump_duration} seconds")
         self.turnONGPIO()
         time.sleep(pump_duration)
+        self.stats.set_last_started()
 
              
     def stop(self):
