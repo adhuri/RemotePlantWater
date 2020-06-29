@@ -41,17 +41,21 @@ def water_now():
     heavy_process.start()
     return f"Processing the request to water for duration : {duration} seconds"
 
-# @app.route("/count/today", methods=['GET'])
-# def get_count_today():
-#     return m.stats.get_today_stats()
+@app.route("/count/today", methods=['GET'])
+def get_count_today():
+     return str(m.db.get_today_count())
 
-@app.route("/laststarted", methods=['GET'])
-def get_last_started_time():
-    last_started_timestamp = m.db.get_last_timestamp()
-    if last_started_timestamp is None:
+@app.route("/count/total", methods=['GET'])
+def get_count_total():
+     return str(m.db.get_total_count())
+
+@app.route("/lastwater", methods=['GET'])
+def get_last_water_time():
+    last_water_timestamp = m.db.get_last_timestamp()
+    if last_water_timestamp is None:
         return "0000-00-00: 00:00:00"
     else:
-        return last_started_timestamp
+        return last_water_timestamp
 
 atexit.register(lambda: sched.shutdown())
 atexit.register(m.cleanUpGPIO)
