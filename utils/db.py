@@ -51,7 +51,7 @@ class TimestampDB:
             return last_timestamp
         except Exception as e:
             logger.error(f"[db] Couldn't get last timestamp for {self.device_name}")
-            return None
+            return "0000-00-00: 00:00:00"
 
     
     def get_total_count(self) -> int:

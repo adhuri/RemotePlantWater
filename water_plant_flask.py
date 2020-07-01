@@ -70,11 +70,8 @@ def get_count_total():
 
 @app.route("/lastwater", methods=['GET'])
 def get_last_water_time():
-    last_water_timestamp = m1.db.get_last_timestamp()
-    if last_water_timestamp is None:
-        return jsonify(timestamp="0000-00-00: 00:00:00")
-    else:
-        return jsonify(timestamp=last_water_timestamp)
+    last_water_timestamp={m.name:m.db.get_last_timestamp() for m in active_motors}
+    return jsonify(last_water_timestamp)
 
 atexit.register(lambda: sched.shutdown())
 
