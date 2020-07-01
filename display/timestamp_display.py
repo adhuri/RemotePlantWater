@@ -33,6 +33,11 @@ from datetime import datetime
 import fontawesome as fa
 import subprocess
 
+# To toggle blinks
+def toggle(blink:bool):
+    return (not blink)
+
+
 # Raspberry Pi pin configuration:
 RST = None     # on the PiOLED this pin isnt used
 # Note the following are only used with SPI:
@@ -103,18 +108,24 @@ font_icon = ImageFont.truetype('fontawesome-webfont.ttf', 18)
 font_text_small = ImageFont.truetype('Montserrat-Medium.ttf', 8)
 font_live_date = ImageFont.truetype('Montserrat-Medium.ttf', 10)
 
-
+# Alternate blink so that we know the display is not frozen
+indoor_blink = True
+outdoor_blink = False
 while True:
 
     # Draw a black filled box to clear the image.
     draw.rectangle((0,0,width,height), outline=0, fill=0)
     #draw.line([(width/2,10),(width/2, height)], fill=255)
-    
     # Icons
     icon_y = top
-    draw.text((x+15, icon_y),   str(fa.icons['thumbs-up']), font=font_icon, fill=255)
-    draw.text((x+90, icon_y),   str(fa.icons['thumbs-down']),  font=font_icon, fill=255)
+    if indoor_blink: 
+        draw.text((x+15, icon_y),   str(fa.icons['pagelines']), font=font_icon, fill=255)
+    if outdoor_blink:
+        draw.text((x+90, icon_y),   str(fa.icons['pagelines']),  font=font_icon, fill=255)
     
+    indoor_blink = toggle(indoor_blink)
+    outdoor_blink = toggle(outdoor_blink)
+
     # Location
     time_y = top +18 
     draw.text((x+ 85, time_y), str("Indoor"), font=font_text_small, fill=255)
@@ -132,3 +143,5 @@ while True:
     disp.image(image)
     disp.display()
     time.sleep(1)
+
+
