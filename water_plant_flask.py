@@ -2,18 +2,26 @@ import atexit
 from devices.motor import Motor
 from logger import init_logger
 from apscheduler.schedulers.background import BackgroundScheduler
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, abort , jsonify
 from multiprocessing import Process
 
-
+# Init logger
 init_logger()
-m = Motor(name="Motor Indoor", bcm_pin_number=17)
+
+# Init Motors with bcm pin numbers. The name is useful for configs
+m1 = Motor(name="Motor Indoor", bcm_pin_number=17)
+m2 = Motor(name="Motor Outdoor", bcm_pin_number=27)
+
+active_motors = [m1, m2]
 
 # Scheduler
 sched = BackgroundScheduler()
-hour_to_run, minute_to_run, second_to_run = m.get_schedule()
-sched.add_job(m.run, trigger='cron', hour=hour_to_run,
-              minute=minute_to_run, second=second_to_run)
+
+for m in active_motors:
+    hour_to_run, minute_to_run, second_to_run = m.get_schedule()
+    sched.add_job(m.run, trigger='cron', hour=hour_to_run,
+                minute=minute_to_run, second=second_to_run)
+
 sched.start()
 
 # Routes
@@ -26,39 +34,53 @@ def home():
         return render_template('index.html', content=content, headers=headers)
 
 
-@app.route("/water", methods=['GET'])
-def water_now():
-    def plant_water_once(duration):
+@app.route("/<motor>/water", methods=['GET'])
+def water_now(motor:str):
+    # Private method to plant water once
+    def _plant_water_once(m:Motor, duration:str):
         m.start(duration=duration)
         m.stop()
+    # Select Motor
+    if motor.lower() == "indoor":
+        m = m1
+    elif motor.lower() == "outdoor":
+        m = m2
+    else:
+        abort(404,description="Motor not found. Options are indoor or outdoor")
 
+    # Daemon process
     duration = request.args.get(
         'duration', default=m.default_pump_duration(), type=int)
     heavy_process = Process(  # Create a daemonic process
-        target=plant_water_once,
-        args=(duration,),
+        target=_plant_water_once,
+        args=(m,duration,),
         daemon=True)
     heavy_process.start()
-    return f"Processing the request to water for duration : {duration} seconds"
+    return jsonify(message="Processing the request to water the motor", device=m.name,duration=f"{duration} seconds")
 
 @app.route("/count/today", methods=['GET'])
 def get_count_today():
-     return str(m.db.get_today_count())
+    count_today={m.name:m.db.get_today_count() for m in active_motors}
+    return jsonify(count_today)
 
 @app.route("/count/total", methods=['GET'])
 def get_count_total():
-     return str(m.db.get_total_count())
+    count_total={m.name:m.db.get_total_count() for m in active_motors}
+    return jsonify(count_total)
 
 @app.route("/lastwater", methods=['GET'])
 def get_last_water_time():
-    last_water_timestamp = m.db.get_last_timestamp()
+    last_water_timestamp = m1.db.get_last_timestamp()
     if last_water_timestamp is None:
-        return "0000-00-00: 00:00:00"
+        return jsonify(timestamp="0000-00-00: 00:00:00")
     else:
-        return last_water_timestamp
+        return jsonify(timestamp=last_water_timestamp)
 
 atexit.register(lambda: sched.shutdown())
-atexit.register(m.cleanUpGPIO)
+
+for m in active_motors:
+    atexit.register(m.cleanUpGPIO)
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0")
