@@ -54,7 +54,8 @@ class Device(ABC):
         logging.debug(f"Init GPIO BCM pin {self.bcm_pin_number}")
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(self.bcm_pin_number, GPIO.OUT)
-        
+        # Explicitly turning off the pin
+        GPIO.output(self.bcm_pin_number, GPIO.HIGH)
 
     def turnONGPIO(self):
         logger.debug(f"ON GPIO BCM pin {self.bcm_pin_number}")
