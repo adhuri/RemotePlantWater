@@ -2,7 +2,7 @@ import atexit
 from devices.motor import Motor
 from logger import init_logger
 from apscheduler.schedulers.background import BackgroundScheduler
-from flask import Flask, render_template, request, abort , jsonify
+from flask import Flask, render_template, request, abort, jsonify
 from multiprocessing import Process
 
 # Init logger
@@ -20,7 +20,7 @@ sched = BackgroundScheduler()
 for m in active_motors:
     hour_to_run, minute_to_run, second_to_run = m.get_schedule()
     sched.add_job(m.run, trigger='cron', hour=hour_to_run,
-                minute=minute_to_run, second=second_to_run)
+                  minute=minute_to_run, second=second_to_run)
 
 sched.start()
 
@@ -35,9 +35,9 @@ def home():
 
 
 @app.route("/<motor>/water", methods=['GET'])
-def water_now(motor:str):
+def water_now(motor: str):
     # Private method to plant water once
-    def _plant_water_once(m:Motor, duration:str):
+    def _plant_water_once(m: Motor, duration: str):
         m.start(duration=duration)
         m.stop()
     # Select Motor
@@ -46,21 +46,23 @@ def water_now(motor:str):
     elif motor.lower() == "outdoor":
         m = m2
     else:
-        abort(404,description="Motor not found. Options are indoor or outdoor")
+        abort(404, description="Motor not found. Options are indoor or outdoor")
 
     # Daemon process
     duration = request.args.get(
         'duration', default=m.default_pump_duration(), type=int)
     heavy_process = Process(  # Create a daemonic process
         target=_plant_water_once,
-        args=(m,duration,),
+        args=(m, duration,),
         daemon=True)
     heavy_process.start()
-    return jsonify(message="Processing the request to water the motor", device=m.name,duration=f"{duration} seconds")
+    return jsonify(message="Processing the request to water the motor", device=m.name, duration=f"{duration} seconds")
+
 
 @app.route("/stats", methods=['GET'])
 def get_count_dict():
-    stats_dict={m.name:{"today": m.db.get_today_count(), "total": m.db.get_total_count(), "last_watered": m.db.get_last_timestamp()} for m in active_motors}
+    stats_dict = {m.name: {"today": m.db.get_today_count(), "total": m.db.get_total_count(
+    ), "last_watered": m.db.get_last_timestamp()} for m in active_motors}
     return jsonify(stats_dict)
 
 
@@ -71,4 +73,4 @@ for m in active_motors:
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port = 5001)
+    app.run(host="0.0.0.0", port=5001)
