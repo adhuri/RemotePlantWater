@@ -126,15 +126,6 @@ class Display():
             # Draw a black filled box to clear the image.
             self.draw.rectangle((0,0,self.width, self.height), outline=0, fill=0)
             #draw.line([(width/2,10),(width/2, height)], fill=255)
-            # Icons
-            icon_y = top
-            if indoor_blink: 
-                self.draw.text((x+15, icon_y),   str(fa.icons['pagelines']), font=font_icon, fill=255)
-            if outdoor_blink:
-                self.draw.text((x+90, icon_y),   str(fa.icons['pagelines']),  font=font_icon, fill=255)
-            
-            indoor_blink = self.toggle(indoor_blink)
-            outdoor_blink = self.toggle(outdoor_blink)
     
             # Location
             time_y = top +18 
@@ -144,12 +135,29 @@ class Display():
             # Count
             count_y = top + 25
             try:
+                # Stats
                 resp = requests.get("http://"+self.ip+"/stats").json()
                 self.draw.text((x+15, count_y), str(f'{resp["Motor Outdoor"]["today"]}/{resp["Motor Outdoor"]["total"]}'),  font=font, fill=255)
                 self.draw.text((x+70, count_y), str(f'{resp["Motor Indoor"]["today"]}/{resp["Motor Indoor"]["total"]}'),  font=font, fill=255)
+
+                
+                # Icons
+                icon_y = top
+
+                if resp["Motor Indoor"]["today"] < 0:
+                    if indoor_blink: 
+                        self.draw.text((x+15, icon_y),   str(fa.icons['pagelines']), font=font_icon, fill=255)
+
+                if resp["Motor Outdoor"]["today"] > 0:    
+                    if outdoor_blink:
+                        self.draw.text((x+90, icon_y),   str(fa.icons['pagelines']),  font=font_icon, fill=255)
+
+                # Alternate Blinks        
+                outdoor_blink = self.toggle(outdoor_blink)
+                indoor_blink = self.toggle(indoor_blink)
             except Exception:
-                self.draw.text((x+1, count_y), str("0/0"),  font=font, fill=255)
-                self.draw.text((x+70, count_y),    str("0/0"),  font=font, fill=255)
+                self.draw.text((x+1, count_y), str("N/A"),  font=font, fill=255)
+                self.draw.text((x+70, count_y),    str("N/A"),  font=font, fill=255)
             
             # Live date
             self.draw.text((x+10,top + 56), str(datetime.now().strftime("%Y-%m-%d %H:%M:%S")), font = font_live_date, fill=255)
