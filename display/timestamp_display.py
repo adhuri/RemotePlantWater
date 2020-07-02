@@ -33,115 +33,120 @@ from datetime import datetime
 import fontawesome as fa
 import subprocess
 
-# To toggle blinks
-def toggle(blink:bool):
-    return (not blink)
 
 
-# Raspberry Pi pin configuration:
-RST = None     # on the PiOLED this pin isnt used
-# Note the following are only used with SPI:
-#DC = 23
-#SPI_PORT = 0
-#SPI_DEVICE = 0
+class Display():
+
+    # To toggle blinks
+    def toggle(self, blink:bool):
+        return (not blink)
+
+def __init__():
+    # Raspberry Pi pin configuration:
+    RST = None     # on the PiOLED this pin isnt used
+    # Note the following are only used with SPI:
+    #DC = 23
+    #SPI_PORT = 0
+    #SPI_DEVICE = 0
 
 
-# 128x32 display with hardware I2C:
-# disp = Adafruit_SSD1306.SSD1306_128_32(rst=RST)
+    # 128x32 display with hardware I2C:
+    # disp = Adafruit_SSD1306.SSD1306_128_32(rst=RST)
 
-# 128x64 display with hardware I2C:
-disp = Adafruit_SSD1306.SSD1306_128_64(rst=RST)
+    # 128x64 display with hardware I2C:
+    self.disp = Adafruit_SSD1306.SSD1306_128_64(rst=RST)
 
-# Note you can change the I2C address by passing an i2c_address parameter like:
-# disp = Adafruit_SSD1306.SSD1306_128_64(rst=RST, i2c_address=0x3C)
+    # Note you can change the I2C address by passing an i2c_address parameter like:
+    # disp = Adafruit_SSD1306.SSD1306_128_64(rst=RST, i2c_address=0x3C)
 
-# Alternatively you can specify an explicit I2C bus number, for example
-# with the 128x32 display you would use:
-# disp = Adafruit_SSD1306.SSD1306_128_32(rst=RST, i2c_bus=2)
+    # Alternatively you can specify an explicit I2C bus number, for example
+    # with the 128x32 display you would use:
+    # disp = Adafruit_SSD1306.SSD1306_128_32(rst=RST, i2c_bus=2)
 
-# 128x32 display with hardware SPI:
-# disp = Adafruit_SSD1306.SSD1306_128_32(rst=RST, dc=DC, spi=SPI.SpiDev(SPI_PORT, SPI_DEVICE, max_speed_hz=8000000))
+    # 128x32 display with hardware SPI:
+    # disp = Adafruit_SSD1306.SSD1306_128_32(rst=RST, dc=DC, spi=SPI.SpiDev(SPI_PORT, SPI_DEVICE, max_speed_hz=8000000))
 
-# 128x64 display with hardware SPI:
-# disp = Adafruit_SSD1306.SSD1306_128_64(rst=RST, dc=DC, spi=SPI.SpiDev(SPI_PORT, SPI_DEVICE, max_speed_hz=8000000))
+    # 128x64 display with hardware SPI:
+    # disp = Adafruit_SSD1306.SSD1306_128_64(rst=RST, dc=DC, spi=SPI.SpiDev(SPI_PORT, SPI_DEVICE, max_speed_hz=8000000))
 
-# Alternatively you can specify a software SPI implementation by providing
-# digital GPIO pin numbers for all the required display pins.  For example
-# on a Raspberry Pi with the 128x32 display you might use:
-# disp = Adafruit_SSD1306.SSD1306_128_32(rst=RST, dc=DC, sclk=18, din=25, cs=22)
+    # Alternatively you can specify a software SPI implementation by providing
+    # digital GPIO pin numbers for all the required display pins.  For example
+    # on a Raspberry Pi with the 128x32 display you might use:
+    # disp = Adafruit_SSD1306.SSD1306_128_32(rst=RST, dc=DC, sclk=18, din=25, cs=22)
 
-# Initialize library.
-disp.begin()
+    # Initialize library.
+    self.disp.begin()
 
-# Clear display.
-disp.clear()
-disp.display()
+    # Clear display.
+    self.disp.clear()
+    self.disp.display()
 
-# Create blank image for drawing.
-# Make sure to create image with mode '1' for 1-bit color.
-width = disp.width
-height = disp.height
-image = Image.new('1', (width, height))
+    # Create blank image for drawing.
+    # Make sure to create image with mode '1' for 1-bit color.
+    self.width = disp.width
+    self.height = disp.height
+    self.image = Image.new('1', (self.width, self.height))
 
-# Get drawing object to draw on image.
-draw = ImageDraw.Draw(image)
+    # Get drawing object to draw on image.
+    self.draw = ImageDraw.Draw(self.image)
 
-# Draw a black filled box to clear the image.
-draw.rectangle((0,0,width,height), outline=0, fill=0)
-
-# Draw some shapes.
-# First define some constants to allow easy resizing of shapes.
-padding = -2
-top = padding
-bottom = height-padding
-# Move left to right keeping track of the current x position for drawing shapes.
-x = 0
-
-
-# Load default font.
-font = ImageFont.load_default()
-
-# Alternatively load a TTF font.  Make sure the .ttf font file is in the same directory as the python script!
-# Some other nice fonts to try: http://www.dafont.com/bitmap.php
-font = ImageFont.truetype('Notable-Regular.ttf', 20)
-font_icon = ImageFont.truetype('fontawesome-webfont.ttf', 18)
-font_text_small = ImageFont.truetype('Montserrat-Medium.ttf', 8)
-font_live_date = ImageFont.truetype('Montserrat-Medium.ttf', 10)
-
-# Alternate blink so that we know the display is not frozen
-indoor_blink = True
-outdoor_blink = False
-while True:
-
+def fill(self):
     # Draw a black filled box to clear the image.
-    draw.rectangle((0,0,width,height), outline=0, fill=0)
-    #draw.line([(width/2,10),(width/2, height)], fill=255)
-    # Icons
-    icon_y = top
-    if indoor_blink: 
-        draw.text((x+15, icon_y),   str(fa.icons['pagelines']), font=font_icon, fill=255)
-    if outdoor_blink:
-        draw.text((x+90, icon_y),   str(fa.icons['pagelines']),  font=font_icon, fill=255)
-    
-    indoor_blink = toggle(indoor_blink)
-    outdoor_blink = toggle(outdoor_blink)
+    self.draw.rectangle((0,0,width,height), outline=0, fill=0)
 
-    # Location
-    time_y = top +18 
-    draw.text((x+ 85, time_y), str("Indoor"), font=font_text_small, fill=255)
-    draw.text((x+10, time_y), str("Outdoor"), font=font_text_small, fill=255)
-    
-    # Count
-    count_y = top + 25
-    draw.text((x+1, count_y), str("2/20"),  font=font, fill=255)
-    draw.text((x+70, count_y),    str("4/30"),  font=font, fill=255)
-    
-    # Live date
-    draw.text((x+10,top + 56), str(datetime.now().strftime("%Y-%m-%d %H:%M:%S")), font = font_live_date, fill=255)
-    
-    # Display image.
-    disp.image(image)
-    disp.display()
-    time.sleep(1)
+    # Draw some shapes.
+    # First define some constants to allow easy resizing of shapes.
+    padding = -2
+    top = padding
+    bottom = height-padding
+    # Move left to right keeping track of the current x position for drawing shapes.
+    x = 0
+
+
+    # Load default font.
+    font = ImageFont.load_default()
+
+    # Alternatively load a TTF font.  Make sure the .ttf font file is in the same directory as the python script!
+    # Some other nice fonts to try: http://www.dafont.com/bitmap.php
+    font = ImageFont.truetype('Notable-Regular.ttf', 20)
+    font_icon = ImageFont.truetype('fontawesome-webfont.ttf', 18)
+    font_text_small = ImageFont.truetype('Montserrat-Medium.ttf', 8)
+    font_live_date = ImageFont.truetype('Montserrat-Medium.ttf', 10)
+
+    # Alternate blink so that we know the display is not frozen
+    indoor_blink = True
+    outdoor_blink = False
+    while True:
+
+        # Draw a black filled box to clear the image.
+        self.draw.rectangle((0,0,width,height), outline=0, fill=0)
+        #draw.line([(width/2,10),(width/2, height)], fill=255)
+        # Icons
+        icon_y = top
+        if indoor_blink: 
+            self.draw.text((x+15, icon_y),   str(fa.icons['pagelines']), font=font_icon, fill=255)
+        if outdoor_blink:
+            self.draw.text((x+90, icon_y),   str(fa.icons['pagelines']),  font=font_icon, fill=255)
+        
+        indoor_blink = self.toggle(indoor_blink)
+        outdoor_blink = self.toggle(outdoor_blink)
+
+        # Location
+        time_y = top +18 
+        self.draw.text((x+ 85, time_y), str("Indoor"), font=font_text_small, fill=255)
+        self.draw.text((x+10, time_y), str("Outdoor"), font=font_text_small, fill=255)
+        
+        # Count
+        count_y = top + 25
+        self.draw.text((x+1, count_y), str("2/20"),  font=font, fill=255)
+        self.draw.text((x+70, count_y),    str("4/30"),  font=font, fill=255)
+        
+        # Live date
+        self.draw.text((x+10,top + 56), str(datetime.now().strftime("%Y-%m-%d %H:%M:%S")), font = font_live_date, fill=255)
+        
+        # Display image.
+        self.disp.image(self.image)
+        self.disp.display()
+        time.sleep(1)
 
 
