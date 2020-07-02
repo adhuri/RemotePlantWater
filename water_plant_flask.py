@@ -58,20 +58,11 @@ def water_now(motor:str):
     heavy_process.start()
     return jsonify(message="Processing the request to water the motor", device=m.name,duration=f"{duration} seconds")
 
-@app.route("/count/today", methods=['GET'])
-def get_count_today():
-    count_today={m.name:m.db.get_today_count() for m in active_motors}
-    return jsonify(count_today)
+@app.route("/stats", methods=['GET'])
+def get_count_dict():
+    stats_dict={m.name:{"today": m.db.get_today_count(), "total": m.db.get_total_count(), "last_watered": m.db.get_last_timestamp()} for m in active_motors}
+    return jsonify(stats_dict)
 
-@app.route("/count/total", methods=['GET'])
-def get_count_total():
-    count_total={m.name:m.db.get_total_count() for m in active_motors}
-    return jsonify(count_total)
-
-@app.route("/lastwater", methods=['GET'])
-def get_last_water_time():
-    last_water_timestamp={m.name:m.db.get_last_timestamp() for m in active_motors}
-    return jsonify(last_water_timestamp)
 
 atexit.register(lambda: sched.shutdown())
 
