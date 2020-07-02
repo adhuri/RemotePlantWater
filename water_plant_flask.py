@@ -1,4 +1,5 @@
 import atexit
+import logging
 from devices.motor import Motor
 from logger import init_logger
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -7,6 +8,8 @@ from multiprocessing import Process
 
 # Init logger
 init_logger()
+logger = logging.getLogger("water_plants")
+
 
 # Init Motors with bcm pin numbers. The name is useful for configs
 m1 = Motor(name="Motor Indoor", bcm_pin_number=17)
@@ -23,6 +26,24 @@ for m in active_motors:
                   minute=minute_to_run, second=second_to_run)
 
 sched.start()
+
+# Init Display if it exists
+try:
+    from display.timestamp_display import Display
+    logger.info("Starting the display")
+    dis = Display()
+    display_process = Process( 
+            name = "waterplant_display",
+            target=dis.fill,
+            args=(),
+            daemon = True)
+    display_process.start()
+
+
+except ModuleNotFoundError:
+    logger.warning("No Display connected. Mocking display")
+except Exception as e:
+    logger.error(f"Display process had issues {e}")
 
 # Routes
 app = Flask(__name__)
