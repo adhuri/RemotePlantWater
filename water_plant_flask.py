@@ -30,6 +30,9 @@ sched.start()
 # Init Display if it exists
 try:
     from display.timestamp_display import Display
+    logger.info("Starting the display")
+    dis = Display()
+    dis.fill()
 
 except ModuleNotFoundError:
     logger.warning("No Display connected. Mocking display")
