@@ -24,6 +24,7 @@ import time
 
 import Adafruit_GPIO.SPI as SPI
 import Adafruit_SSD1306
+import requests
 
 from definitions import ROOT_DIR
 
@@ -44,6 +45,7 @@ class Display():
         return (not blink)
 
     def __init__(self):
+        self.ip = "localhost"
         # Raspberry Pi pin configuration:
         RST = None     # on the PiOLED this pin isnt used
         # Note the following are only used with SPI:
@@ -111,7 +113,7 @@ class Display():
         # Alternatively load a TTF font.  Make sure the .ttf font file is in the same directory as the python script!
         # Some other nice fonts to try: http://www.dafont.com/bitmap.php
        
-        font = ImageFont.truetype(f'{ROOT_DIR}/display/Notable-Regular.ttf', 20)
+        font = ImageFont.truetype(f'{ROOT_DIR}/display/Montserrat-Regular.ttf', 20)
         font_icon = ImageFont.truetype(f'{ROOT_DIR}/display/fontawesome-webfont.ttf', 18)
         font_text_small = ImageFont.truetype(f'{ROOT_DIR}/display/Montserrat-Medium.ttf', 8)
         font_live_date = ImageFont.truetype(f'{ROOT_DIR}/display/Montserrat-Medium.ttf', 10)
@@ -136,13 +138,18 @@ class Display():
     
             # Location
             time_y = top +18 
-            self.draw.text((x+ 85, time_y), str("Indoor"), font=font_text_small, fill=255)
+            self.draw.text((x+ 75, time_y), str("Indoor"), font=font_text_small, fill=255)
             self.draw.text((x+10, time_y), str("Outdoor"), font=font_text_small, fill=255)
             
             # Count
             count_y = top + 25
-            self.draw.text((x+1, count_y), str("2/20"),  font=font, fill=255)
-            self.draw.text((x+70, count_y),    str("4/30"),  font=font, fill=255)
+            try:
+                resp = requests.get("http://"+self.ip+"/stats").json()
+                self.draw.text((x+15, count_y), str(f'{resp["Motor Outdoor"]["today"]}/{resp["Motor Outdoor"]["total"]}'),  font=font, fill=255)
+                self.draw.text((x+70, count_y), str(f'{resp["Motor Indoor"]["today"]}/{resp["Motor Indoor"]["total"]}'),  font=font, fill=255)
+            except Exception:
+                self.draw.text((x+1, count_y), str("0/0"),  font=font, fill=255)
+                self.draw.text((x+70, count_y),    str("0/0"),  font=font, fill=255)
             
             # Live date
             self.draw.text((x+10,top + 56), str(datetime.now().strftime("%Y-%m-%d %H:%M:%S")), font = font_live_date, fill=255)
