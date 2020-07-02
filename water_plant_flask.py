@@ -32,10 +32,18 @@ try:
     from display.timestamp_display import Display
     logger.info("Starting the display")
     dis = Display()
-    dis.fill()
+    display_process = Process( 
+            name = "waterplant_display",
+            target=dis.fill,
+            args=(),
+            daemon = True)
+    display_process.start()
+
 
 except ModuleNotFoundError:
     logger.warning("No Display connected. Mocking display")
+except Exception as e:
+    logger.error(f"Display process had issues {e}")
 
 # Routes
 app = Flask(__name__)

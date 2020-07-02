@@ -144,7 +144,7 @@ class Display():
                 # Icons
                 icon_y = top
 
-                if resp["Motor Indoor"]["today"] < 0:
+                if resp["Motor Indoor"]["today"] > 0:
                     if indoor_blink: 
                         self.draw.text((x+15, icon_y),   str(fa.icons['pagelines']), font=font_icon, fill=255)
 
