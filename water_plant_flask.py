@@ -21,8 +21,10 @@ active_motors = [m1, m2]
 sched = BackgroundScheduler()
 
 for m in active_motors:
-    hour_to_run, minute_to_run, second_to_run = m.get_schedule()
-    sched.add_job(m.run, trigger='cron', hour=hour_to_run,
+    schedule_times = m.get_schedule()
+    logger.info(f"Scheduled times {str(schedule_times)} for motor {m.name}")
+    for hour_to_run, minute_to_run, second_to_run in schedule_times:
+        sched.add_job(m.run, trigger='cron', hour=hour_to_run,
                   minute=minute_to_run, second=second_to_run)
 
 sched.start()

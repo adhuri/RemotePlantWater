@@ -40,7 +40,10 @@ class Motor(Device):
             time.sleep(self.duration_between_cycles())
 
     def get_schedule(self) -> [str,str,str]:
-        return self.readConfig("ScheduledDateTime").split(":")
+        schedule_date_times = []
+        for time in self.readConfig("ScheduledDateTime").split(","):
+            schedule_date_times.append(time.split(":"))
+        return schedule_date_times
 
     def no_of_cycles(self) -> int:
         return int(self.readConfig("Cycles"))
