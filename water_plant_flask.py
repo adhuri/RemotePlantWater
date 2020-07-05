@@ -1,4 +1,5 @@
 import atexit
+import json
 import logging
 from devices.motor import Motor
 from logger import init_logger
@@ -51,10 +52,8 @@ except Exception as e:
 app = Flask(__name__)
 @app.route("/")
 def home():
-    with open('config.ini', 'r') as f:
-        content = f.read()
-        headers = {'Content-Type': 'text/html'}
-        return render_template('index.html', content=content, headers=headers)
+    stats_dict = {m.name: {"today": m.db.get_today_count(), "total": m.db.get_total_count(), "last_watered": m.db.get_last_timestamp()} for m in active_motors}    
+    return render_template('index.html', stats = stats_dict)
 
 
 @app.route("/<motor>/water", methods=['GET'])
