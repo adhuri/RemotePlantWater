@@ -136,7 +136,7 @@ class Display():
             count_y = top + 25
             try:
                 # Stats
-                resp = requests.get("http://"+self.ip+"/stats").json()
+                resp = requests.get("http://"+self.ip+"/stats",timeout=5).json()
                 self.draw.text((x+15, count_y), str(f'{resp["Motor Outdoor"]["today"]}/{resp["Motor Outdoor"]["total"]}'),  font=font, fill=255)
                 self.draw.text((x+70, count_y), str(f'{resp["Motor Indoor"]["today"]}/{resp["Motor Indoor"]["total"]}'),  font=font, fill=255)
 
