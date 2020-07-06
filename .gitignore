@@ -11,6 +11,6 @@ pyvenv.cfg
 
 # Logs
 water_plant.log
-
+display/display.log
 #DB
 utils/*.db
