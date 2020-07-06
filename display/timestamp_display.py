@@ -26,7 +26,6 @@ import Adafruit_GPIO.SPI as SPI
 import Adafruit_SSD1306
 import requests
 
-from definitions import ROOT_DIR
 
 from PIL import Image
 from PIL import ImageDraw
@@ -44,7 +43,7 @@ class Display():
     def toggle(self, blink:bool):
         return (not blink)
 
-    def __init__(self):
+    def __init__(self, ROOT_DIR):
         self.ip = "localhost"
         # Raspberry Pi pin configuration:
         RST = None     # on the PiOLED this pin isnt used
@@ -52,7 +51,7 @@ class Display():
         #DC = 23
         #SPI_PORT = 0
         #SPI_DEVICE = 0
-    
+        self.root_dir =  ROOT_DIR
     
         # 128x32 display with hardware I2C:
         # disp = Adafruit_SSD1306.SSD1306_128_32(rst=RST)
@@ -113,10 +112,10 @@ class Display():
         # Alternatively load a TTF font.  Make sure the .ttf font file is in the same directory as the python script!
         # Some other nice fonts to try: http://www.dafont.com/bitmap.php
        
-        font = ImageFont.truetype(f'{ROOT_DIR}/display/Montserrat-Regular.ttf', 20)
-        font_icon = ImageFont.truetype(f'{ROOT_DIR}/display/fontawesome-webfont.ttf', 18)
-        font_text_small = ImageFont.truetype(f'{ROOT_DIR}/display/Montserrat-Medium.ttf', 8)
-        font_live_date = ImageFont.truetype(f'{ROOT_DIR}/display/Montserrat-Medium.ttf', 10)
+        font = ImageFont.truetype(f'Montserrat-Regular.ttf', 20)
+        font_icon = ImageFont.truetype(f'fontawesome-webfont.ttf', 18)
+        font_text_small = ImageFont.truetype(f'Montserrat-Medium.ttf', 8)
+        font_live_date = ImageFont.truetype(f'Montserrat-Medium.ttf', 10)
     
         # Alternate blink so that we know the display is not frozen
         indoor_blink = True
@@ -144,11 +143,11 @@ class Display():
                 # Icons
                 icon_y = top
 
-                if resp["Motor Indoor"]["today"] > 0:
+                if resp["Motor Outdoor"]["today"] > 0:
                     if indoor_blink: 
                         self.draw.text((x+15, icon_y),   str(fa.icons['pagelines']), font=font_icon, fill=255)
 
-                if resp["Motor Outdoor"]["today"] > 0:    
+                if resp["Motor Indoor"]["today"] > 0:    
                     if outdoor_blink:
                         self.draw.text((x+90, icon_y),   str(fa.icons['pagelines']),  font=font_icon, fill=255)
 

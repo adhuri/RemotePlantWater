@@ -12,18 +12,19 @@ formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(messag
 fh.setFormatter(formatter)
 logger.addHandler(fh)
 
-context = daemon.DaemonContext(pidfile=lockfile.FileLock('./display.pid'),files_preserve=[fh.stream])
+context = daemon.DaemonContext(
+        pidfile=lockfile.FileLock('./display.pid'),
+        working_directory=".",
+        files_preserve=[fh.stream])
 
 with context:
     try:
-        from display.timestamp_display import Display
+        from timestamp_display import Display
         logger.info("Starting the display")
-        dis = Display()
+        dis = Display(".")
         dis.fill()
         logger.info("Stopped Display")
 
-    except ModuleNotFoundError:
-        logger.warning("No Display connected. Mocking display")
     except Exception as e:
         logger.error(f"Display process had issues {e}")
 
