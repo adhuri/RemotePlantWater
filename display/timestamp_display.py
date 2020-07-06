@@ -121,49 +121,51 @@ class Display():
         indoor_blink = True
         outdoor_blink = False
         while True:
-    
-            # Draw a black filled box to clear the image.
-            self.draw.rectangle((0,0,self.width, self.height), outline=0, fill=0)
-            #draw.line([(width/2,10),(width/2, height)], fill=255)
-    
-            # Location
-            time_y = top +18 
-            self.draw.text((x+ 75, time_y), str("Indoor"), font=font_text_small, fill=255)
-            self.draw.text((x+10, time_y), str("Outdoor"), font=font_text_small, fill=255)
-            
-            # Count
-            count_y = top + 25
             try:
-                # Stats
-                resp = requests.get("http://"+self.ip+"/stats",timeout=5).json()
-                self.draw.text((x+15, count_y), str(f'{resp["Motor Outdoor"]["today"]}/{resp["Motor Outdoor"]["total"]}'),  font=font, fill=255)
-                self.draw.text((x+70, count_y), str(f'{resp["Motor Indoor"]["today"]}/{resp["Motor Indoor"]["total"]}'),  font=font, fill=255)
-
+                # Draw a black filled box to clear the image.
+                self.draw.rectangle((0,0,self.width, self.height), outline=0, fill=0)
+                #draw.line([(width/2,10),(width/2, height)], fill=255)
+        
+                # Location
+                time_y = top +18 
+                self.draw.text((x+ 75, time_y), str("Indoor"), font=font_text_small, fill=255)
+                self.draw.text((x+10, time_y), str("Outdoor"), font=font_text_small, fill=255)
                 
-                # Icons
-                icon_y = top
+                # Count
+                count_y = top + 25
+                try:
+                    # Stats
+                    resp = requests.get("http://"+self.ip+"/stats",timeout=5).json()
+                    self.draw.text((x+15, count_y), str(f'{resp["Motor Outdoor"]["today"]}/{resp["Motor Outdoor"]["total"]}'),  font=font, fill=255)
+                    self.draw.text((x+70, count_y), str(f'{resp["Motor Indoor"]["today"]}/{resp["Motor Indoor"]["total"]}'),  font=font, fill=255)
 
-                if resp["Motor Outdoor"]["today"] > 0:
-                    if indoor_blink: 
-                        self.draw.text((x+15, icon_y),   str(fa.icons['pagelines']), font=font_icon, fill=255)
+                    
+                    # Icons
+                    icon_y = top
 
-                if resp["Motor Indoor"]["today"] > 0:    
-                    if outdoor_blink:
-                        self.draw.text((x+90, icon_y),   str(fa.icons['pagelines']),  font=font_icon, fill=255)
+                    if resp["Motor Outdoor"]["today"] > 0:
+                        if indoor_blink: 
+                            self.draw.text((x+15, icon_y),   str(fa.icons['pagelines']), font=font_icon, fill=255)
 
-                # Alternate Blinks        
-                outdoor_blink = self.toggle(outdoor_blink)
-                indoor_blink = self.toggle(indoor_blink)
-            except Exception:
-                self.draw.text((x+1, count_y), str("N/A"),  font=font, fill=255)
-                self.draw.text((x+70, count_y),    str("N/A"),  font=font, fill=255)
-            
-            # Live date
-            self.draw.text((x+10,top + 56), str(datetime.now().strftime("%Y-%m-%d %H:%M:%S")), font = font_live_date, fill=255)
-            
-            # Display image.
-            self.disp.image(self.image)
-            self.disp.display()
-            time.sleep(1)
+                    if resp["Motor Indoor"]["today"] > 0:    
+                        if outdoor_blink:
+                            self.draw.text((x+90, icon_y),   str(fa.icons['pagelines']),  font=font_icon, fill=255)
+
+                    # Alternate Blinks        
+                    outdoor_blink = self.toggle(outdoor_blink)
+                    indoor_blink = self.toggle(indoor_blink)
+                except Exception:
+                    self.draw.text((x+1, count_y), str("N/A"),  font=font, fill=255)
+                    self.draw.text((x+70, count_y),    str("N/A"),  font=font, fill=255)
+                
+                # Live date
+                self.draw.text((x+10,top + 56), str(datetime.now().strftime("%Y-%m-%d %H:%M:%S")), font = font_live_date, fill=255)
+                
+                # Display image.
+                self.disp.image(self.image)
+                self.disp.display()
+                time.sleep(1)
+            except Exception as e:
+                logger.warning(f"There was an error while looping through the display process, recovering. Error: {e}")
     
 
